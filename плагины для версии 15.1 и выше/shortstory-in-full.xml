@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dleplugin>
+	<name>Shortstory in full</name>
+	<description></description>
+	<icon></icon>
+	<version></version>
+	<dleversion>13.0</dleversion>
+	<versioncompare>greater</versioncompare>
+	<upgradeurl></upgradeurl>
+	<filedelete>0</filedelete>
+	<needplugin></needplugin>
+	<mnotice>0</mnotice>
+	<mysqlinstall><![CDATA[]]></mysqlinstall>
+	<mysqlupgrade><![CDATA[]]></mysqlupgrade>
+	<mysqlenable><![CDATA[]]></mysqlenable>
+	<mysqldisable><![CDATA[]]></mysqldisable>
+	<mysqldelete><![CDATA[]]></mysqldelete>
+	<phpinstall><![CDATA[]]></phpinstall>
+	<phpupgrade><![CDATA[]]></phpupgrade>
+	<phpenable><![CDATA[]]></phpenable>
+	<phpdisable><![CDATA[]]></phpdisable>
+	<phpdelete><![CDATA[]]></phpdelete>
+	<notice><![CDATA[]]></notice>
+	<file name="engine/modules/show.full.php">
+		<operation action="after">
+			<searchcode><![CDATA[$tpl->set( '{short-story}', $row['short_story'] );
+
+			$tpl->set( '{full-story}', $row['full_story'] );]]></searchcode>
+			<replacecode><![CDATA[if( preg_match( "#\\{short-story limit=['\"](.+?)['\"]\\}#i", $tpl->copy_template, $matches ) ) {
+            $count = intval($matches[1]);
+            
+            $row['short_story'] = preg_replace( "#<!--TBegin(.+?)<!--TEnd-->#is", "", $row['short_story'] );
+            $row['short_story'] = preg_replace( "#<!--MBegin(.+?)<!--MEnd-->#is", "", $row['short_story'] );
+            $row['short_story'] = preg_replace( "'\[attachment=(.*?)\]'si", "", $row['short_story'] );
+            $row['short_story'] = preg_replace( "#\[hide\](.+?)\[/hide\]#ims", "", $row['short_story'] );
+
+            $row['short_story'] = str_replace( "</p><p>", " ", $row['short_story'] );
+            $row['short_story'] = strip_tags( $row['short_story'], "<br>" );
+            $row['short_story'] = trim(str_replace( "<br>", " ", str_replace( "<br />", " ", str_replace( "\n", " ", str_replace( "\r", "", $row['short_story'] ) ) ) ));
+
+            if( $count AND dle_strlen( $row['short_story'], $config['charset'] ) > $count ) {
+                $row['short_story'] = dle_substr( $row['short_story'], 0, $count, $config['charset'] );
+
+                if( ($temp_dmax = dle_strrpos( $row['short_story'], ' ', $config['charset'] )) ) $row['short_story'] = dle_substr( $row['short_story'], 0, $temp_dmax, $config['charset'] );
+            }
+
+            $tpl->set( $matches[0], $row['short_story'] );
+        }]]></replacecode>
+			<enabled>1</enabled>
+		</operation>
+	</file>
+</dleplugin>
